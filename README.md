@@ -2,6 +2,8 @@
 
 # API de Pedidos
 
+[![CI](https://github.com/jguii/Projeto-Full-Cycle/actions/workflows/ci.yml/badge.svg)](https://github.com/jguii/Projeto-Full-Cycle/actions/workflows/ci.yml)
+
 API de domínio único para **pedidos**: criar um pedido com itens, consultá-lo e avançar o status
 até a entrega. Projeto final do curso Full Cycle — Módulo 4.
 
@@ -113,7 +115,7 @@ Medido hoje: ≈ 99 % de linhas, ≈ 92 % de branches.
 | `secrets` | gitleaks em todo o histórico — falha se houver segredo commitado |
 | `smoke` | `docker compose up --wait` + k6 smoke com thresholds de p95; p95 publicado no resumo do job |
 
-**Execução verde:** _(colar aqui o link da execução após o primeiro push para o GitHub)_
+**Execução verde:** <https://github.com/jguii/Projeto-Full-Cycle/actions/runs/43755917191> (4/4 jobs com sucesso)
 
 ---
 
