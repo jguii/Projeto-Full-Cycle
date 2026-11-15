@@ -1,0 +1,52 @@
+# Sobe tudo com 1 comando:  docker compose up --build
+# Valores vêm do .env (copie de .env.example). Os defaults abaixo servem só para desenvolvimento local.
+name: api-pedidos
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pedidos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pedidos_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-pedidos}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL: postgres://${POSTGRES_USER:-pedidos}:${POSTGRES_PASSWORD:-pedidos_dev}@db:5432/${POSTGRES_DB:-pedidos}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Teste de carga sob demanda: docker compose --profile k6 run --rm k6
+  k6:
+    image: grafana/k6:1.4.2
+    profiles: ["k6"]
+    environment:
+      BASE_URL: http://api:3000
+    user: "0:0" # precisa escrever o resumo no diretório montado
+    volumes:
+      - ./k6/smoke.js:/scripts/smoke.js:ro
+      - ./k6/results:/results
+    command: run --summary-export=/results/summary.json /scripts/smoke.js
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db-data:
