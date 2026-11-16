@@ -19,7 +19,15 @@ Valores monetários são inteiros em **centavos**. Transições fora do diagrama
 
 ## Subir em 1 comando
 
-Pré-requisito: Docker (com Compose v2).
+Pré-requisitos: **Git** e **Docker** (com Compose v2). Node só é necessário para rodar os testes fora do Docker.
+
+```bash
+git clone https://github.com/jguii/Projeto-Full-Cycle.git
+```
+
+```bash
+cd Projeto-Full-Cycle
+```
 
 ```bash
 cp .env.example .env
@@ -34,7 +42,21 @@ As migrações rodam sozinhas na subida do contêiner.
 
 > O Postgres do Compose é exposto na porta **5433** do host (não 5432) para não colidir com um Postgres instalado localmente.
 
+Comandos do dia a dia:
+
+| Comando | O que faz |
+|---|---|
+| `docker compose up -d --build` | Sobe em segundo plano, reconstruindo a imagem da API |
+| `docker compose ps` | Mostra os contêineres e se estão saudáveis |
+| `docker compose logs -f api` | Acompanha os logs da API (JSON estruturado) |
+| `docker compose down` | Desliga tudo, **mantendo** os dados do banco |
+| `docker compose down -v` | Desliga tudo e **apaga** os dados do banco |
+
 ### Testar na mão
+
+O jeito mais fácil é pelo navegador: abra <http://localhost:3000/docs>, escolha `POST /orders` → *Try it out* → *Execute*.
+
+Pelo terminal (Linux, macOS ou Git Bash; no PowerShell use `curl.exe` em vez de `curl`):
 
 ```bash
 curl -s -X POST localhost:3000/orders -H "content-type: application/json" -d '{"customerName":"Maria","items":[{"sku":"CAFE-500G","name":"Cafe 500g","quantity":2,"unitPriceCents":2990}]}'
@@ -88,7 +110,8 @@ Ele faz `TRUNCATE` nas tabelas: use um banco descartável (o do Compose serve).
 docker compose --profile k6 run --rm k6
 ```
 
-Smoke test k6 com p95 medido (a API precisa estar de pé). Resultados em [`docs/desempenho.md`](docs/desempenho.md).
+Smoke test k6 com p95 medido (a API precisa estar de pé; o k6 fica num *profile* e só roda com esse comando).
+Último resultado: **p95 de 6,89 ms no `POST /orders`**, 0 % de erro. Detalhes em [`docs/desempenho.md`](docs/desempenho.md).
 
 Outros: `npm run lint`, `npm run typecheck`, `npm run lint:openapi`, `npm run dev` (hot reload, banco do Compose).
 
